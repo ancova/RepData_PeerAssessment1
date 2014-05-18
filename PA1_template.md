@@ -79,7 +79,7 @@ Combine the date and interval into a new variable _DateTime_, and then convert d
 
     
     ```r
-    # Mean and median total number of steps taken per day
+    # Mean total number of steps taken per day
     mean(SumStep$steps)
     ```
     
@@ -149,7 +149,7 @@ Note that there are a number of days/intervals where there are missing values (c
     
 #### 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
-The filling strategy is to use the mean of that 5-minute interval.
+The filling strategy is to use the mean of that 5-minute interval, and then create a new dataset that is equal to the original dataset but with the missing data filled in.
 
     
     ```r
@@ -162,11 +162,70 @@ The filling strategy is to use the mean of that 5-minute interval.
     ```
 
 
+#### 3.Make a histogram of the total number of steps taken each day.
 
-#### 3.Create a new dataset that is equal to the original dataset but with the missing data filled in.
+    
+    ```r
+    require(plyr)
+    SumStep.Fill <- ddply(Act.Fill, .(date), summarise, steps = sum(steps))
+    hist(SumStep.Fill$steps, xlab = "Total steps per day", main = "Total number of steps taken each day (Filled data)")
+    ```
+    
+    ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
-#### 4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+    
+#### 4.Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
+```r
+# Mean total number of steps taken per day
+mean(SumStep.Fill$steps)
+```
+
+```
+## [1] 10766
+```
+
+```r
+# Median total number of steps taken per day
+median(SumStep.Fill$steps)
+```
+
+```
+## [1] 10766
+```
+
+
+Yes, they are different. The total daily number of steps will be larger if the imputed missing value is filled back to the NAs.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+```r
+Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
+```
+
+```r
+Act.Fill$day <- weekdays(Act.Fill$Datetime)
+Act.Fill$weekday[Act.Fill$day == "Saturday" | Act.Fill$day == "Sunday"] <- "weekend"
+Act.Fill$weekday[!(Act.Fill$day == "Saturday" | Act.Fill$day == "Sunday")] <- "weekday"
+
+Weekday.Mean <- ddply(Act.Fill, .(interval, weekday), summarise, mean.weekday = mean(steps))
+require(lattice)
+```
+
+```
+## Loading required package: lattice
+```
+
+```r
+xyplot(mean.weekday ~ interval | weekday, data = Weekday.Mean, type = "l", layout = c(1, 
+    2))
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+
