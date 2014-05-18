@@ -137,7 +137,31 @@ Note that there are a number of days/intervals where there are missing values (c
 
 #### 1.Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
+    
+    ```r
+    sum(is.na(Activity$steps))
+    ```
+    
+    ```
+    ## [1] 2304
+    ```
+
+    
 #### 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+The filling strategy is to use the mean of that 5-minute interval.
+
+    
+    ```r
+    Act.Fill <- Activity
+    for (i in 1:nrow(Act.Fill)) {
+        if (is.na(Act.Fill[i, 1])) {
+            Act.Fill[i, 1] <- dailyPattern$mean_steps[dailyPattern$interval == Act.Fill$interval[i]]
+        }
+    }
+    ```
+
+
 
 #### 3.Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
