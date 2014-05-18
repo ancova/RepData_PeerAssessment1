@@ -6,28 +6,52 @@ This is the first peer assessment for Peproducible Research in Data Science Spec
 
 First of all, open the [GitHub repository created for the assessment](https://github.com/rdpeng/RepData_PeerAssessment1), and fork or clone the repo into local folder.  The GitHub repository also contains the dataset for the assignment, so you do not have to download the data separately.
 
-1. Load the data. Set the working directory into the github folder using ``setwd()``, and then unzip the data file and read in the data using ``read.csv()``.
+#### 1. Load the data. 
+
+Set the working directory into the github folder using ``setwd()``, and then unzip the data file and read in the data using ``read.csv()``.
 
     ```{r, echo=TRUE}
-    setwd("K:\\MOOCs - Data Science Specialization\\5. Reproducible Research\\PeerAssessment1\\Github") # set working directory
+    # set working directory
+    setwd("K:\\MOOCs - Data Science Specialization\\5. Reproducible Research\\PeerAssessment1\\Github") 
     unzip("activity.zip") # unzip file
     dir()
     Activity <- read.csv("activity.csv", colClasses=c("numeric","character","numeric"))
     dim(Activity)
     ```
 
-2. Process/transform the data (if necessary) into a format suitable for your analysis. Combine the date and interval into a new variable _DateTime_, and then convert date into date format.
+#### 2. Process/transform the data (if necessary) into a format suitable for your analysis. 
+
+Combine the date and interval into a new variable _DateTime_, and then convert date into date format.
 
     ```{r, echo=TRUE}
-    Activity$Datetime  <- strptime(paste(Activity$date, 
-        formatC(Activity$interval, width=4, flag="0"),
-        sep=" "),"%Y-%m-%d %H%M")
+    Activity$Datetime  <- strptime(paste(Activity$date, formatC(Activity$interval, width=4, flag="0"), sep=" "),"%Y-%m-%d %H%M")
     Activity$date <- as.Date(Activity$date)
     ```
 
 ## What is mean total number of steps taken per day?
 
+#### 1. Make a histogram of the total number of steps taken each day.
 
+- Use the ``ddply()`` function in _plyr_ package to generate sums of each day.
+    
+- Set ``na.rm=TRUE`` to ignore the missing values.
+    
+- plot a histgraom.
+
+    ```{r, echo=TRUE}
+    require(plyr)
+    SumStep <- ddply(Activity,.(date), summarise, steps=sum(steps, na.rm=TRUE))
+    hist(SumStep$steps, xlab="Total steps per day", main="Total number of steps taken each day")
+    ```
+
+#### 2. Calculate and report the mean and median total number of steps taken per day
+
+    ```{r, echo=TRUE}
+    # Mean and median total number of steps taken per day
+    mean(SumStep$steps)
+    # Median total number of steps taken per day
+    median(SumStep$steps)
+    ```
 
 ## What is the average daily activity pattern?
 
